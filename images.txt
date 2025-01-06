@@ -1,11 +1,17 @@
 nginx
 semitechnologies/weaviate
+semitechnologies/weaviate:1.19.0
 ubuntu/squid
 langgenius/dify-api
+langgenius/dify-api:0.14.2
 postgres
+postgres:15-alpine
 redis
+redis:6-alpine
 langgenius/dify-sandbox
+langgenius/dify-sandbox:0.2.10
 langgenius/dify-web
+langgenius/dify-web:0.14.2
 n8nio/n8n
 maxkeytop/maxkey
 maxkeytop/maxkey-mgt
