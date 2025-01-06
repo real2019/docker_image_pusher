@@ -1,5 +1,11 @@
 nginx
 semitechnologies/weaviate
+ubuntu/squid
+langgenius/dify-api
+postgres
+redis
+langgenius/dify-sandbox
+langgenius/dify-web
 n8nio/n8n
 maxkeytop/maxkey
 maxkeytop/maxkey-mgt
