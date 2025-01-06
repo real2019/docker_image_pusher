@@ -1,5 +1,5 @@
 nginx
-weaviate
+semitechnologies/weaviate
 n8nio/n8n
 maxkeytop/maxkey
 maxkeytop/maxkey-mgt
