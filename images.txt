@@ -7,7 +7,7 @@ langgenius/dify-api:0.14.2
 postgres
 postgres:15-alpine
 redis
-dify-on-dingtalk
+zfanswer/dify-on-dingtalk
 redis:6-alpine
 langgenius/dify-sandbox
 langgenius/dify-sandbox:0.2.10
