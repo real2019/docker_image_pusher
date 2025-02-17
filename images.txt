@@ -1,3 +1,4 @@
+portkeyai/gateway
 nginx
 semitechnologies/weaviate
 semitechnologies/weaviate:1.19.0
