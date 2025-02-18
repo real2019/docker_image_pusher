@@ -1,3 +1,4 @@
+eosphorosai/dbgpt
 portkeyai/gateway
 nginx
 semitechnologies/weaviate
