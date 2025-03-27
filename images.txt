@@ -1,3 +1,4 @@
+tugraph/tugraph-runtime-centos7:latest
 mysql:5.7
 victoriametrics/victoria-metrics:v1.79.12
 flashcatcloud/nightingale:latest
