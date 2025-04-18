@@ -1,4 +1,4 @@
-centos:7
+centos:8
 dataelement/bisheng-unstructured
 dataelement/bisheng-backend:base.v1
 python:3.10-slim
