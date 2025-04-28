@@ -1,4 +1,3 @@
-centos:8.5
 openeuler/openeuler:22.03-lts
 centos:8
 dataelement/bisheng-unstructured
