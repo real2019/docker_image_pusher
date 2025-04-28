@@ -1,3 +1,4 @@
+openeuler/openeuler:22.03-lts
 centos:8
 dataelement/bisheng-unstructured
 dataelement/bisheng-backend:base.v1
