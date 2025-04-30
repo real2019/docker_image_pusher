@@ -1,4 +1,4 @@
-ubuntu/python
+ubuntu:24.04
 ubuntu:22.04
 openeuler/openeuler:22.03-lts
 centos:8
