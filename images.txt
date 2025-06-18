@@ -1,3 +1,4 @@
+rockchin/langbot:latest
 zilliz/attu:v2.5
 dataelement/bisheng-unstructured:v0.0.3.14
 dataelement/bisheng-backend:base.v2
