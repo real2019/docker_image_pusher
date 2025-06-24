@@ -1,3 +1,4 @@
+samanhappy/mcphub:latest-full
 samanhappy/mcphub
 dataelement/bisheng-frontend:v1.3.0
 rockchin/langbot:latest
