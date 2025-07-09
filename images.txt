@@ -1,5 +1,6 @@
 python:3.13-slim-bookworm
 ghcr.io/astral-sh/uv:latest
+samanhappy/mcphub:latest-full
 samanhappy/mcphub
 dataelement/bisheng-frontend:v1.3.0
 rockchin/langbot:latest
