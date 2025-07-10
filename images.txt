@@ -1,3 +1,4 @@
+justsong/one-api
 python:3.13-slim-bookworm
 ghcr.io/astral-sh/uv:latest
 samanhappy/mcphub:latest-full
