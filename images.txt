@@ -1,3 +1,4 @@
+ghcr.io/hkuds/lightrag:latest
 neo4j:5.22.0
 justsong/one-api
 python:3.13-slim-bookworm
