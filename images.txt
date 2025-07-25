@@ -1,3 +1,6 @@
+frappe/erpnext:v15.71.1
+mariadb:10.6
+redis:6.2-alpine
 neo4j:latest
 ghcr.io/hkuds/lightrag:latest
 neo4j:5.22.0
