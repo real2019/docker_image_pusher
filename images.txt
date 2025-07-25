@@ -1,4 +1,4 @@
-frappe/erpnext:v15.71.0
+frappe/erpnext:v15.70.2
 mariadb:10.6
 redis:6.2-alpine
 neo4j:latest
