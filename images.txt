@@ -1,3 +1,10 @@
+wechatopenai/weknora-app:latest
+minio/minio:latest
+wechatopenai/weknora-ui:latest
+wechatopenai/weknora-docreader:latest
+jaegertracing/all-in-one:latest
+paradedb/paradedb:latest
+redis:7.0-alpine
 wordpress:6.8.2-php8.4-apache
 frappe/erpnext:v14.88.2
 mariadb:10.6
