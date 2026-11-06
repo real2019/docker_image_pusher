@@ -19,36 +19,16 @@ jobs:
     name: Pull
     runs-on: ubuntu-latest
     steps:
-    - name: Before freeing up disk space
+    # self-hosted runner 上 easimon/maximize-build-space 无效，改为直接清理容器残留
+    # 如果 runner 机器根分区仍然紧张，可将 Docker 数据目录迁移到大容量磁盘
+    - name: Cleanup leftover container data
       run: |
-        echo "Before freeing up disk space"
+        echo "任务开始前磁盘占用"
         echo "=============================================================================="
         df -hT
         echo "=============================================================================="
-
-    # 增加可用磁盘空间
-    - name: Maximize build space
-      uses: easimon/maximize-build-space@master
-      with:
-
-        root-reserve-mb: 4096
-        swap-size-mb: 128
-        remove-dotnet: 'true'
-        remove-haskell: 'true'
-        # 如果空间还是不够用，可以把以下开启，清理出更多空间
-        remove-android: 'true'
-        remove-codeql: 'true'
-        # build-mount-path: '/var/lib/docker/'
-
-    - name: Restart docker
-      run: sudo service docker restart
-
-    - name: Free up disk space complete
-      run: |
-        echo "Free up disk space complete"
-        echo "=============================================================================="
-        df -hT
-        echo "=============================================================================="
+        docker system prune -f
+        docker builder prune -af
 
     - name: Checkout Code
       uses: actions/checkout@v4
@@ -108,7 +88,10 @@ jobs:
             fi
         
             echo "docker pull $line"
-            docker pull $line
+            if ! docker pull $line; then
+                echo "镜像拉取失败，跳过该镜像: $line"
+                continue
+            fi
             platform=$(echo "$line" | awk -F'--platform[ =]' '{if (NF>1) print $2}' | awk '{print $1}')
             echo "platform is $platform"
             # 如果存在架构信息 将架构信息拼到镜像名称前面
@@ -148,8 +131,10 @@ jobs:
             echo "=============================================================================="
             df -hT
             echo "=============================================================================="
-            docker rmi $image
-            docker rmi $new_image
+            # docker rmi 只删除 tag，层数据会变成悬空层继续占盘，需要 prune 才真正释放
+            docker rmi $image || true
+            docker rmi $new_image || true
+            docker image prune -f
             echo "磁盘空间清理完毕"
             echo "=============================================================================="
             df -hT
