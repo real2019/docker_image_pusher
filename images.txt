@@ -1,3 +1,5 @@
+rustfs/rustfs:latest
+linuxserver/libreoffice:latest
 wechatopenai/weknora-app:latest
 minio/minio:latest
 wechatopenai/weknora-ui:latest
