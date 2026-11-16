@@ -1,3 +1,5 @@
+docker.litellm.ai/berriai/litellm:v1.108.2
+postgres:16
 rustfs/rustfs:latest
 linuxserver/libreoffice:latest
 wechatopenai/weknora-app:latest
