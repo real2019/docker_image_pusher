@@ -1,3 +1,4 @@
+ubuntu/squid:latest
 docker.litellm.ai/berriai/litellm:v1.108.2
 postgres:16
 rustfs/rustfs:latest
