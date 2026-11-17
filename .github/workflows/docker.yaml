@@ -53,18 +53,14 @@ jobs:
             image=$(echo "$line" | awk '{print $NF}')
             # 将@sha256:等字符删除
             image="${image%%@*}"
-            echo "image $image"
             # 获取镜像名:版本号  例如nginx:1.25.3
             image_name_tag=$(echo "$image" | awk -F'/' '{print $NF}')
-            echo "image_name_tag $image_name_tag"
             # 获取命名空间 例如kasmweb,  这里有种特殊情况 docker.io/nginx，把docker.io当成命名空间，也OK
             name_space=$(echo "$image" | awk -F'/' '{if (NF==3) print $2; else if (NF==2) print $1; else print ""}')
-            echo "name_space: $name_space"
             # 这里不要是空值影响判断
             name_space="${name_space}_"
             # 获取镜像名例如nginx
             image_name=$(echo "$image_name_tag" | awk -F':' '{print $1}')
-            echo "image_name: $image_name"
             
             # 如果镜像存在于数组中，则添加temp_map
             if [[ -n "${temp_map[$image_name]}" ]]; then
@@ -87,11 +83,6 @@ jobs:
                 continue
             fi
         
-            echo "docker pull $line"
-            if ! docker pull $line; then
-                echo "镜像拉取失败，跳过该镜像: $line"
-                continue
-            fi
             platform=$(echo "$line" | awk -F'--platform[ =]' '{if (NF>1) print $2}' | awk '{print $1}')
             echo "platform is $platform"
             # 如果存在架构信息 将架构信息拼到镜像名称前面
@@ -123,21 +114,10 @@ jobs:
             # 将@sha256:等字符删除
             image_name_tag="${image_name_tag%%@*}"
             new_image="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$platform_prefix$name_space_prefix$image_name_tag"
-            echo "docker tag $image $new_image"
-            docker tag $image $new_image
-            echo "docker push $new_image"
-            docker push $new_image
-            echo "开始清理磁盘空间"
-            echo "=============================================================================="
-            df -hT
-            echo "=============================================================================="
-            # docker rmi 只删除 tag，层数据会变成悬空层继续占盘，需要 prune 才真正释放
-            docker rmi $image || true
-            docker rmi $new_image || true
-            docker image prune -f
-            echo "磁盘空间清理完毕"
-            echo "=============================================================================="
-            df -hT
-            echo "=============================================================================="     
+            echo "docker buildx imagetools create -t $new_image $image"
+            if ! docker buildx imagetools create -t "$new_image" "$image"; then
+                echo "镜像推送失败，跳过: $image"
+                continue
+            fi
             
         done < images.txt
