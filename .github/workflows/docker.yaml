@@ -36,14 +36,6 @@ jobs:
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v3
 
-    # 安装 crane（go-containerregistry），它的 --platform 过滤能剔除 OCI 1.1 attestation / empty manifest，避免 Aliyun ACR 403
-    - name: Install crane
-      run: |
-        CRANE_VERSION=v0.19.1
-        curl -sL "https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_Linux_x86_64.tar.gz" | tar xzf - crane
-        sudo install crane /usr/local/bin/
-        crane version
-
     - name: Build and push image Aliyun
       run: |
         docker login -u $ALIYUN_REGISTRY_USER -p $ALIYUN_REGISTRY_PASSWORD $ALIYUN_REGISTRY
@@ -122,34 +114,49 @@ jobs:
             # 将@sha256:等字符删除
             image_name_tag="${image_name_tag%%@*}"
             new_image="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$platform_prefix$name_space_prefix$image_name_tag"
-            # 决定要拷贝的平台列表：
-            #   1) images.txt 显式指定了 --platform，就用它
-            #   2) 否则从源镜像 manifest list 中提取真实平台，剔除 attestation / unknown / empty manifest
+            # 从源镜像 manifest list 中提取真实平台的 digest，剔除 attestation / unknown / empty manifest
+            # 避免 Aliyun ACR 403: unknown manifest class for application/vnd.oci.empty.v1+json
+            repo="${image%:*}"
+            raw_manifest=$(docker buildx imagetools inspect --raw "$image" 2>/dev/null || true)
             if [ -n "$platform" ]; then
-                copy_platforms="$platform"
-            else
-                copy_platforms=$(crane manifest "$image" 2>/dev/null \
-                  | jq -r '
-                      if type=="object" and has("manifests") then
+                # 用户显式指定了平台，只取匹配的 digest
+                selected_digests=$(echo "$raw_manifest" | jq -r --arg p "$platform" '
+                    if type=="object" and has("manifests") then
                         .manifests[]?
                         | select(.platform != null)
                         | select(.platform.attestation != true)
                         | select(.platform.os != "unknown")
-                        | "\(.platform.os)/\(.platform.architecture)" + (if .platform.variant then "/" + .platform.variant else "" end)
-                      else empty end' \
-                  | sort -u | paste -sd, -)
+                        | "\(.platform.os)/\(.platform.architecture)" as $base
+                        | (if .platform.variant then $base + "/" + .platform.variant else $base end) as $full
+                        | select($base == $p or $full == $p)
+                        | .digest
+                    else empty end')
+            else
+                # 未指定平台，取所有真实镜像平台（排除 attestation / unknown）
+                selected_digests=$(echo "$raw_manifest" | jq -r '
+                    if type=="object" and has("manifests") then
+                        .manifests[]?
+                        | select(.platform != null)
+                        | select(.platform.attestation != true)
+                        | select(.platform.os != "unknown")
+                        | .digest
+                    else empty end')
             fi
-            echo "copy_platforms=$copy_platforms"
-            if [ -n "$copy_platforms" ]; then
-                echo "crane copy --platform=$copy_platforms $image $new_image"
-                if ! crane copy --platform="$copy_platforms" "$image" "$new_image"; then
+            if [ -n "$selected_digests" ]; then
+                src_args=""
+                while read -r d; do
+                    [ -z "$d" ] && continue
+                    src_args="$src_args ${repo}@${d}"
+                done <<< "$selected_digests"
+                echo "docker buildx imagetools create -t $new_image$src_args"
+                if ! docker buildx imagetools create -t "$new_image" $src_args; then
                     echo "镜像推送失败，跳过: $image"
                     continue
                 fi
             else
-                # 单平台镜像或无 manifest list，直接拷贝
-                echo "crane copy $image $new_image"
-                if ! crane copy "$image" "$new_image"; then
+                # 单平台镜像（无 manifest list），直接拷贝
+                echo "docker buildx imagetools create -t $new_image $image"
+                if ! docker buildx imagetools create -t "$new_image" "$image"; then
                     echo "镜像推送失败，跳过: $image"
                     continue
                 fi
