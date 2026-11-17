@@ -1,3 +1,4 @@
+ghcr.io/m1k1o/neko/chromium:latest
 m1k1o/neko:chromium
 ubuntu/squid:latest
 docker.litellm.ai/berriai/litellm:v1.108.2
